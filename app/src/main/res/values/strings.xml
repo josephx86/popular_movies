@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">Popular Movies</string>
+    <string name="powered_by_themoviedb_org">Powered by TheMovieDb.org</string>
+    <string name="tmdb_api_key">place_tmdb_your_api_key_here</string>
+    <string name="movie_poster">Movie poster</string>
+    <string name="sort_order">Sort Order</string>
+    <string name="most_popular">Most popular</string>
+    <string name="highest_rated">Highest rated</string>
+    <string name="sort_by_popularity">Sort by popularity</string>
+    <string name="preference_sort_order">sort_by</string>
+    <string name="sort_by_rating">Sort by rating</string>
+    <string name="popularity_score_label">Popularity score:&#160;</string>
+    <string name="pref_sort" translatable="false">sort_order</string>
+    <string name="pref_sort_by_rating" translatable="false">rating</string>
+    <string name="pref_sort_by_popularity" translatable="false">popularity</string>
+    <string name="movie_object_key" translatable="false">parcelable_movie_object</string>
+    <string name="details_activity_title">Movie Details</string>
+    <string name="release_date">Release date:</string>
+    <string name="rating">Rating:</string>
+</resources>
