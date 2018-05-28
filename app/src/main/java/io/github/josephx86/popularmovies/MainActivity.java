@@ -1,5 +1,7 @@
 package io.github.josephx86.popularmovies;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -65,6 +67,29 @@ public class MainActivity extends AppCompatActivity implements IWaitForMovies {
         if (adapter.getItemCount() > 0) {
             moviesRecyclerView.setVisibility(View.VISIBLE);
             progressBar.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public void setMovieItemSelectedListener(final View view) {
+        if (view != null) {
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Object idObject = v.getTag();
+                    if (idObject instanceof Integer) {
+                        // Show movie details
+                        Context context = view.getContext();
+                        String key = context.getString(R.string.movie_object_key);
+                        int movieId = (int) idObject;
+                        Movie m = adapter.findMovieById(movieId);
+
+                        Intent intent = new Intent(context, DetailsActivity.class);
+                        intent.putExtra(key, m);
+                        context.startActivity(intent);
+                    }
+                }
+            });
         }
     }
 

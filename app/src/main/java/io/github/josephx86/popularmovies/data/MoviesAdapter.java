@@ -1,7 +1,5 @@
 package io.github.josephx86.popularmovies.data;
 
-import android.content.Context;
-import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,7 +9,6 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.josephx86.popularmovies.DetailsActivity;
 import io.github.josephx86.popularmovies.R;
 
 public class MoviesAdapter extends RecyclerView.Adapter<MovieViewHolder> {
@@ -26,26 +23,10 @@ public class MoviesAdapter extends RecyclerView.Adapter<MovieViewHolder> {
     @NonNull
     @Override
     public MovieViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        final View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.movie_recyclerview_item, parent, false);
-        if (view != null) {
-            view.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Object idObject = v.getTag();
-                    if (idObject instanceof Integer) {
-                        // Show movie details
-                        Context context = view.getContext();
-                        String key = context.getString(R.string.movie_object_key);
-                        int movieId = (int) idObject;
-                        Movie m = findMovieById(movieId);
-
-                        Intent intent = new Intent(context, DetailsActivity.class);
-                        intent.putExtra(key, m);
-                        context.startActivity(intent);
-                    }
-                }
-            });
-        }
+        final View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_movie_item, parent, false);
+       if (waiter != null) {
+           waiter.setMovieItemSelectedListener(view);
+       }
 
         return new MovieViewHolder(view);
     }
@@ -113,7 +94,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MovieViewHolder> {
             movies.clear();
             moviesLoaded.clear();
         }
-        TMDBHelper.resetCurrentPage();
+        TMDBHelper.resetCurrentMovieListPage();
         notifyDataSetChanged();
     }
 

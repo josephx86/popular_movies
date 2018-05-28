@@ -87,12 +87,11 @@ public class Utils {
 
     public static void setRating(LinearLayout ratingLayout, double rating) {
         boolean hasHalfStar = false;
-        boolean hasEmptyStar = false;
         int wholeStarCount = (int) rating;
+        int count = 0;
         if (wholeStarCount != 10) {
             int fractionStarValue = (int) ((rating - wholeStarCount) * 10);
             hasHalfStar = fractionStarValue >= 5;
-            hasEmptyStar = fractionStarValue < 5;
         }
         Context context = ratingLayout.getContext();
         if (ratingLayout.getChildCount() > 0) {
@@ -102,19 +101,22 @@ public class Utils {
             ImageView star = new ImageView(context);
             star.setImageResource(R.drawable.ic_star_12dp);
             ratingLayout.addView(star);
+            count++;
         }
         if (hasHalfStar) {
             ImageView halfStar = new ImageView(context);
             halfStar.setImageResource(R.drawable.ic_star_half_12dp);
             ratingLayout.addView(halfStar);
+            count++;
         }
 
-        if (hasEmptyStar) {
+        // The rest of the stars will be empty so that user will see rating is out of 10.
+        while (count < 10) {
             ImageView emptyStar = new ImageView(context);
             emptyStar.setImageResource(R.drawable.ic_star_border_12dp);
             ratingLayout.addView(emptyStar);
+            count++;
         }
-
     }
 
     public static MoviesAdapter.SortType getSavedSortOrder(Context context) {

@@ -1,40 +1,39 @@
 package io.github.josephx86.popularmovies;
 
 import android.content.Intent;
+import android.os.Bundle;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.text.format.DateFormat;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.github.josephx86.popularmovies.data.DetailsPagerAdapter;
+import io.github.josephx86.popularmovies.data.IWaitForReviews;
 import io.github.josephx86.popularmovies.data.Movie;
+import io.github.josephx86.popularmovies.data.Review;
+import io.github.josephx86.popularmovies.data.TMDBHelper;
 import io.github.josephx86.popularmovies.data.Utils;
 
-public class DetailsActivity extends AppCompatActivity {
+public class DetailsActivity extends AppCompatActivity implements IWaitForReviews {
+
+
+    @BindView(R.id.movie_pager)
+    ViewPager pager;
+
+    @BindView(R.id.titles_tl)
+    TabLayout titlesTabLayout;
+
     @BindView(R.id.backdrop_iv)
     ImageView backdropImageView;
 
-
-    @BindView(R.id.poster_iv)
-    ImageView posterImageView;
-
-    @BindView(R.id.title_tv)
-    TextView titleTextView;
-
-    @BindView(R.id.release_date_tv)
-    TextView releaseDateTextView;
-
-    @BindView(R.id.rating_ll)
-    LinearLayout ratingLayout;
-
-    @BindView(R.id.overview_tv)
-    TextView overviewTextView;
+    DetailsPagerAdapter pagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,40 +48,41 @@ public class DetailsActivity extends AppCompatActivity {
             actionBar.setTitle(getString(R.string.details_activity_title));
         }
 
-        // Get the movie id from intent extra.
+        pagerAdapter = new DetailsPagerAdapter(this);
+        pager.setAdapter(pagerAdapter);
+        pager.setCurrentItem(0, true);
+        titlesTabLayout.setupWithViewPager(pager, true);
+
+
+        // Get the movie data from intent extra.
         Intent intent = getIntent();
         if (intent != null) {
             String key = getString(R.string.movie_object_key);
             Movie movie = intent.getParcelableExtra(key);
-            showMovieDetails(movie);
+            setBackdrop(movie.getBackdropPath());
+            if (pagerAdapter != null) {
+                pagerAdapter.setMovie(movie);
+            }
+
+            // Get reviews
+            Review.setMovieId(movie.getId());
+            TMDBHelper.getReviews(this, this, movie.getId(), true);
         }
     }
 
-    private void showMovieDetails(Movie movie) {
+    private void setBackdrop(String backdropPath) {
         // Show the backdrop in the background
-        String imageUrl = Utils.getBackdropUrl(movie.getBackdropPath());
+        String imageUrl = Utils.getBackdropUrl(backdropPath);
         Picasso
                 .get()
                 .load(imageUrl)
                 .into(backdropImageView);
+    }
 
-        // The poster.
-        imageUrl = Utils.getPosterUrl(movie.getPosterPath());
-        Picasso
-                .get()
-                .load(imageUrl)
-                .placeholder(R.drawable.movie_poster_placeholder)
-                .into(posterImageView);
-
-        String originalTitle = movie.getOriginalTitle();
-        String title = movie.getTitle();
-        titleTextView.setText(movie.getOriginalTitle());
-        if (!originalTitle.equals(title)) {
-            titleTextView.append("\n(" + title + ")");
+    @Override
+    public void processReceivedReviews(List<Review> reviews) {
+        if (pagerAdapter != null) {
+            pagerAdapter.addReviews(reviews, this);
         }
-        String releaseDate = DateFormat.format("MMMM dd, yyyy", movie.getReleaseDate()).toString();
-        releaseDateTextView.setText(releaseDate);
-        Utils.setRating(ratingLayout, movie.getVoteAverage());
-        overviewTextView.setText(movie.getOverview());
     }
 }
