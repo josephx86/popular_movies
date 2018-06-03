@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements IWaitForMovies {
     }
 
     private void initializeRecyclerView() {
-        int columnCount = Utils.calculateGridLayoutColumns(this);
+        int columnCount = Utils.calculatePosterGridLayoutColumns(this);
         GridLayoutManager layoutManager = new GridLayoutManager(this, columnCount);
         moviesRecyclerView.setLayoutManager(layoutManager);
         adapter = new MoviesAdapter(this);

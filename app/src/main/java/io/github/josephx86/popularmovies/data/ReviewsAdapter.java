@@ -1,5 +1,6 @@
 package io.github.josephx86.popularmovies.data;
 
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -41,10 +42,12 @@ public class ReviewsAdapter extends RecyclerView.Adapter<ReviewViewHolder> {
         }
     }
 
-    public void addReviews(List<Review> newReviews, IWaitForReviews caller) {
+    public void setCaller(IWaitForReviews caller) {
         // Save the caller so that it can be used to fetch more reviews if needed in onBindViewHolder()
         this.caller = caller;
+    }
 
+    public void addReviews(List<Review> newReviews) {
         if (reviews == null) {
             reviews = new ArrayList<>();
         }
@@ -58,5 +61,12 @@ public class ReviewsAdapter extends RecyclerView.Adapter<ReviewViewHolder> {
             reviews = new ArrayList<>();
         }
         return reviews.size();
+    }
+
+    public ArrayList<Review> getReviews() {
+        if (reviews == null) {
+            reviews = new ArrayList<>();
+        }
+        return (ArrayList<Review>) reviews;
     }
 }

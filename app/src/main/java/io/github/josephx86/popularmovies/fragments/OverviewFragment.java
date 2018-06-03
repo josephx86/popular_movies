@@ -4,6 +4,7 @@ package io.github.josephx86.popularmovies.fragments;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
@@ -81,6 +82,33 @@ public class OverviewFragment extends DetailsPagerFragment {
             Utils.setRating(ratingLayout, movie.getVoteAverage());
 
             overviewTextView.setText(movie.getOverview());
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        // Save movie data
+        if (movie != null) {
+            String key = getString(R.string.parcelable_movie_key);
+            outState.putParcelable(key, movie);
+        }
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            String key = getString(R.string.parcelable_movie_key);
+            if (savedInstanceState.containsKey(key)) {
+                Movie savedMovie = (Movie) savedInstanceState.getParcelable(key);
+                if (savedMovie != null) {
+                    movie = savedMovie;
+                    setMovieDetails();
+                }
+            }
         }
     }
 

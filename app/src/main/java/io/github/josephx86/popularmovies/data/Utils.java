@@ -59,10 +59,19 @@ public class Utils {
         return result;
     }
 
-    public static int calculateGridLayoutColumns(Context context) {
+    public static int calculatePosterGridLayoutColumns(Context context) {
         float posterWidth = getPosterImageViewWidth(context);
+        return calculateGridLayoutColumns(context, posterWidth);
+    }
+
+    public static int calculateVideoGridLayoutColumns(Context context) {
+        float videoWidth = context.getResources().getDimension(R.dimen.movie_trailer_width);
+        return calculateGridLayoutColumns(context, videoWidth);
+    }
+
+    private static int calculateGridLayoutColumns(Context context, float childWith) {
         int deviceWidth = context.getResources().getDisplayMetrics().widthPixels;
-        return (int) (deviceWidth / posterWidth);
+        return (int) (deviceWidth / childWith);
     }
 
     public static String getPosterUrl(String imagePath) {

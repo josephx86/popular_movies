@@ -146,7 +146,7 @@ public class TMDBHelper {
                     // First get the api configuration
                     setConfiguration(context);
 
-                    String key = context.getString(R.string.tmdb_api_key);
+                    String apiKey = context.getString(R.string.tmdb_api_key);
                     String path = "";
                     MoviesAdapter.SortType sortBy = Utils.getSavedSortOrder(context);
                     if (sortBy == MoviesAdapter.SortType.Rating) {
@@ -155,7 +155,7 @@ public class TMDBHelper {
                         path = "movie/popular";
                     }
                     String apiEndpoint = String.format(Locale.US, "%s%s?api_key=%s&language=en-US&page=%d",
-                            API_BASE_URL, path, key, currentMovieListPage);
+                            API_BASE_URL, path, apiKey, currentMovieListPage);
                     String json = httpGet(apiEndpoint);
 
                     // Parse JSON data
@@ -248,16 +248,15 @@ public class TMDBHelper {
                     return reviews;
                 }
 
-                String key = context.getString(R.string.tmdb_api_key);
+                String apiKey = context.getString(R.string.tmdb_api_key);
                 String reviewsEndpoint = String.format(Locale.US, "%smovie/%d/reviews?api_key=%s&language=en-US&page=%d",
-                        API_BASE_URL, movieId, key, currentReviewListPage);
+                        API_BASE_URL, movieId, apiKey, currentReviewListPage);
                 String json = httpGet(reviewsEndpoint);
 
                 // Parse JSON data
                 if (!json.isEmpty()) {
-                    JSONObject jsonObject = null;
                     try {
-                        jsonObject = new JSONObject(json);
+                        JSONObject jsonObject = new JSONObject(json);
 
                         int totalReviews = jsonObject.getInt("total_results");
                         Review.setTotalReviews(totalReviews);
@@ -292,5 +291,51 @@ public class TMDBHelper {
             }
         };
         reviewsTask.execute();
+    }
+
+    public static void getVideos(final IWaitForVideos caller, final Context context, final int movieId) {
+        AsyncTask<Void, Void, List<Video>> videosTask = new AsyncTask<Void, Void, List<Video>>() {
+
+            @Override
+            protected List<Video> doInBackground(Void... voids) {
+                List<Video> videos = new ArrayList<>();
+
+                String apiKey = context.getString(R.string.tmdb_api_key);
+                String videosEndpoint = String.format(Locale.US, "%smovie/%d/videos?api_key=%s&language=en-US",
+                        API_BASE_URL, movieId, apiKey);
+                String json = httpGet(videosEndpoint);
+
+                // Parse JSON data
+                if (!json.isEmpty()) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(json);
+                        // Read videos from JSON
+                        JSONArray videosArray = jsonObject.getJSONArray("results");
+                        for (int i = 0; i < videosArray.length(); i++) {
+                            JSONObject videoObject = videosArray.getJSONObject(i);
+
+                            String key = videoObject.getString("key");
+                            String name = videoObject.getString("name");
+                            String site = videoObject.getString("site");
+                            Video vid = new Video(key, name, site);
+                            videos.add(vid);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                return videos;
+            }
+
+            @Override
+            protected void onPostExecute(List<Video> videos) {
+                super.onPostExecute(videos);
+                if (caller != null) {
+                    caller.processReceivedVideos(videos);
+                }
+            }
+        };
+        videosTask.execute();
     }
 }

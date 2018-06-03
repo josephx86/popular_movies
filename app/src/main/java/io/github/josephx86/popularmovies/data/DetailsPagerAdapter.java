@@ -6,16 +6,17 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentPagerAdapter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.github.josephx86.popularmovies.fragments.ReviewsFragment;
-import io.github.josephx86.popularmovies.TrailersFragment;
 import io.github.josephx86.popularmovies.fragments.OverviewFragment;
+import io.github.josephx86.popularmovies.fragments.VideosFragment;
 
 public class DetailsPagerAdapter extends FragmentPagerAdapter {
     private DetailsPagerFragment[] fragments = new DetailsPagerFragment[]{
             new OverviewFragment(),
-            new TrailersFragment(),
+            new VideosFragment(),
             new ReviewsFragment()
     };
 
@@ -33,10 +34,34 @@ public class DetailsPagerAdapter extends FragmentPagerAdapter {
         }
     }
 
-    public void addReviews(List<Review> reviews, IWaitForReviews caller) {
+    public void setReviewsCaller(IWaitForReviews caller) {
         ReviewsFragment reviewsFragment = (ReviewsFragment) fragments[2];
         if (reviewsFragment != null) {
-            reviewsFragment.addReviews(reviews, caller);
+            reviewsFragment.setReviewsCaller(caller);
+        }
+    }
+
+    public void addReviews(List<Review> reviews) {
+        ReviewsFragment reviewsFragment = (ReviewsFragment) fragments[2];
+        if (reviewsFragment != null) {
+            reviewsFragment.addReviews(reviews);
+        }
+    }
+
+
+    public void addVideos(List<Video> videos) {
+        VideosFragment videosFragment = (VideosFragment) fragments[1];
+        if (videosFragment != null) {
+            videosFragment.addVideos(videos);
+        }
+    }
+
+    public ArrayList<Review> getReviews() {
+        ReviewsFragment reviewsFragment = (ReviewsFragment) fragments[2];
+        if (reviewsFragment != null) {
+            return reviewsFragment.getReviews();
+        } else {
+            return new ArrayList<>();
         }
     }
 

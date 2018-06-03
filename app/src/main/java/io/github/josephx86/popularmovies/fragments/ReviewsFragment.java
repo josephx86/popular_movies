@@ -3,15 +3,19 @@ package io.github.josephx86.popularmovies.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -48,21 +52,36 @@ public class ReviewsFragment extends DetailsPagerFragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_reviews, container, false);
         ButterKnife.bind(this, view);
-        setupRecyclerView();
-        updateUI();
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // Update the UI after DetailsActivity.onRestoreInstanceState(), which restores data for this fragment.
+        updateUI();
     }
 
     private void updateUI() {
         // Update the UI accordingly
-        progressBar.setVisibility(View.GONE);
-        int reviewCount = adapter.getItemCount();
-        if (reviewCount == 0) {
-            reviewsRecyclerView.setVisibility(View.GONE);
-            noReviewsTextView.setVisibility(View.VISIBLE);
-        } else {
-            reviewsRecyclerView.setVisibility(View.VISIBLE);
-            noReviewsTextView.setVisibility(View.GONE);
+        if (progressBar != null) {
+            progressBar.setVisibility(View.GONE);
+        }
+        if ((reviewsRecyclerView != null) && (noReviewsTextView != null)) {
+            if ((adapter != null) && (adapter.getItemCount() == 0)) {
+                reviewsRecyclerView.setVisibility(View.GONE);
+                noReviewsTextView.setVisibility(View.VISIBLE);
+            } else {
+                reviewsRecyclerView.setVisibility(View.VISIBLE);
+                noReviewsTextView.setVisibility(View.GONE);
+            }
+
+            RecyclerView.LayoutManager manager = reviewsRecyclerView.getLayoutManager();
+            RecyclerView.Adapter adapter = reviewsRecyclerView.getAdapter();
+            if ((adapter == null) || (manager == null)) {
+                setupRecyclerView();
+            }
         }
     }
 
@@ -74,10 +93,51 @@ public class ReviewsFragment extends DetailsPagerFragment {
         }
     }
 
-    public void addReviews(List<Review> reviews, IWaitForReviews caller) {
+    public void setReviewsCaller(IWaitForReviews caller) {
+       if (adapter != null) {
+           adapter.setCaller(caller);
+       }
+    }
+
+    public void addReviews(List<Review> reviews) {
         // NOTE: This method may be called before onCreateView()
         if (adapter != null) {
-            adapter.addReviews(reviews, caller);
+            adapter.addReviews(reviews);
+            updateUI();
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        // Save reviews
+        if (adapter != null) {
+            String key = getString(R.string.parcelable_review_array_key);
+            outState.putParcelableArrayList(key, adapter.getReviews());
+        }
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            String key = getString(R.string.parcelable_review_array_key);
+            if (savedInstanceState.containsKey(key)) {
+                List<Review> reviews = savedInstanceState.getParcelableArrayList(key);
+                if (reviews != null) {
+                    adapter.addReviews(reviews);
+                }
+            }
+        }
+    }
+
+    public ArrayList<Review> getReviews() {
+        if (adapter != null) {
+            return adapter.getReviews();
+        } else {
+            return new ArrayList<>();
         }
     }
 
